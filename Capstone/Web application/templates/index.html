@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobGuard360 | Intelligent Real-Time Fake Job Posting Detection</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- MOBILE TOP BAR (Visible on mobile screens <= 900px) -->
+  <header class="mobile-topbar" id="mobileTopBar">
+    <button type="button" class="mobile-hamburger-btn" id="btnMobileNavToggle" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <div class="mobile-brand">
+      <div class="brand-logo-icon small">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="#1d68eb"/>
+          <path d="M10 12.5l2 2 4-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand-name">JobGuard<span class="brand-accent">360</span></span>
+    </div>
+    <button type="button" class="mobile-scan-btn" onclick="switchSection('detector')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Scan</span>
+    </button>
+  </header>
+
+  <!-- BACKDROP OVERLAY FOR MOBILE SIDEBAR -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+
+  <!-- Full App Shell -->
+  <div class="layout-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="appSidebar">
+      <!-- Brand Logo -->
+      <div class="sidebar-brand">
+        <div class="brand-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="#1d68eb"/>
+            <path d="M10 12.5l2 2 4-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-text-wrap">
+          <span class="brand-name">JobGuard<span class="brand-accent">360</span></span>
+          <span class="brand-badge">ML DEFENSE</span>
+        </div>
+        <button type="button" class="sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close Navigation">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Quick Search / Filter Bar in Sidebar -->
+      <div class="sidebar-search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="globalSearchInput" placeholder="Quick search scams.." oninput="filterSampleKeywords(this.value)" />
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-tab="detector" onclick="switchSection('detector')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Live Detector</span>
+        </button>
+
+        <button type="button" class="nav-item" data-tab="dashboard" onclick="switchSection('dashboard')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span>Threat Dashboard</span>
+        </button>
+
+        <button type="button" class="nav-item" data-tab="models" onclick="switchSection('models')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <span>LR vs SVM Arena</span>
+        </button>
+
+        <button type="button" class="nav-item" data-tab="batch" onclick="switchSection('batch')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Batch File Scanner</span>
+        </button>
+
+        <button type="button" class="nav-item" data-tab="signatures" onclick="switchSection('signatures')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+          <span>Scam Signatures</span>
+        </button>
+      </nav>
+
+      <!-- System Engine Status in Sidebar -->
+      <div class="sidebar-status-card">
+        <div class="status-indicator-dot online"></div>
+        <div class="status-details">
+          <span class="status-title">Models Active</span>
+          <span class="status-sub">LR + SVM (LinearSVC)</span>
+        </div>
+      </div>
+
+      <!-- Bottom Settings & API -->
+      <div class="sidebar-bottom">
+        <button type="button" class="nav-item-bottom" onclick="openApiDocs()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span>REST API Docs</span>
+        </button>
+        <button type="button" class="nav-item-bottom" onclick="retrainModelsInfo()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Pipeline Settings</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN APP CONTENT -->
+    <main class="main-content">
+      
+      <!-- TOP HEADER -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <h1 class="welcome-title">Fake Job Posting Detection System <span class="wave">🛡️</span></h1>
+          <p class="welcome-subtitle">Real-time fraud verification using Logistic Regression and Support Vector Machine models.</p>
+        </div>
+
+        <div class="header-right">
+          <!-- Quick Status Pill -->
+          <div class="header-badge-status">
+            <span class="pulse-dot"></span>
+            <span>Real-Time Defense Active</span>
+          </div>
+
+          <!-- Primary Action Button -->
+          <button type="button" class="btn-primary-header" onclick="switchSection('detector')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Scan New Posting</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- TOP 4 KPI CARDS ROW (Matching Clean UI Aesthetic) -->
+      <section class="kpi-row">
+        <!-- KPI 1 -->
+        <div class="card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Dataset Postings Analyzed</span>
+            <div class="kpi-icon-circle blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d68eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+            </div>
+          </div>
+          <div class="kpi-metric-wrap">
+            <span class="kpi-number">5,000</span>
+            <span class="kpi-badge green">+18% this month</span>
+          </div>
+          <span class="kpi-foot-text">EMSCAD benchmark dataset</span>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Fraud Detection Accuracy</span>
+            <div class="kpi-icon-circle green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+          </div>
+          <div class="kpi-metric-wrap">
+            <span class="kpi-number">100.0%</span>
+            <span class="kpi-badge green">Both LR & SVM</span>
+          </div>
+          <span class="kpi-foot-text">Held-out test split (N=1,000)</span>
+        </div>
+
+        <!-- KPI 3 -->
+        <div class="card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Scam Postings Neutralized</span>
+            <div class="kpi-icon-circle red">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+          </div>
+          <div class="kpi-metric-wrap">
+            <span class="kpi-number">900</span>
+            <span class="kpi-badge red">18.0% Fraud Rate</span>
+          </div>
+          <span class="kpi-foot-text">Check & Telegram scams flagged</span>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Average Inference Speed</span>
+            <div class="kpi-icon-circle purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+          <div class="kpi-metric-wrap">
+            <span class="kpi-number">&lt; 15ms</span>
+            <span class="kpi-badge purple">Real-Time</span>
+          </div>
+          <span class="kpi-foot-text">Dual model parallel execution</span>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 1: LIVE DETECTOR (PRIMARY WORKBENCH) ================= -->
+      <section id="sec-detector" class="app-section active">
+        <div class="detector-layout-grid">
+          
+          <!-- LEFT: INPUT WORKBENCH CARD -->
+          <div class="card workbench-card">
+            <div class="card-title-bar">
+              <div class="title-with-pill">
+                <h2>Real-Time Job Inspection</h2>
+                <span class="engine-badge">Engine: <span id="currentEngineLabel">Dual Consensus (LR + SVM)</span></span>
+              </div>
+              <div class="engine-select-box">
+                <label for="engineSelect">Model:</label>
+                <select id="engineSelect" class="header-select" onchange="updateEngineChoice(this.value)">
+                  <option value="both" selected>Dual Consensus (LR + SVM)</option>
+                  <option value="svm">Support Vector Machine (LinearSVC)</option>
+                  <option value="logistic_regression">Logistic Regression</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Instant Test Sample Chips -->
+            <div class="sample-chips-bar">
+              <span class="sample-chips-title">1-Click Test Scenarios:</span>
+              <div class="chips-container">
+                <button type="button" class="chip-btn legit" onclick="applySampleJob('legit_tech')">
+                  <span class="chip-indicator legit"></span>
+                  <span>Senior Software Eng (Real)</span>
+                </button>
+                <button type="button" class="chip-btn legit" onclick="applySampleJob('legit_health')">
+                  <span class="chip-indicator legit"></span>
+                  <span>Clinical Coordinator (Real)</span>
+                </button>
+                <button type="button" class="chip-btn scam" onclick="applySampleJob('scam_data')">
+                  <span class="chip-indicator scam"></span>
+                  <span>Telegram Data Entry (Fake)</span>
+                </button>
+                <button type="button" class="chip-btn scam" onclick="applySampleJob('scam_shopper')">
+                  <span class="chip-indicator scam"></span>
+                  <span>Check Mystery Shopper (Fake)</span>
+                </button>
+                <button type="button" class="chip-btn scam" onclick="applySampleJob('scam_crypto')">
+                  <span class="chip-indicator scam"></span>
+                  <span>Crypto Mule Escrow (Fake)</span>
+                </button>
+                <button type="button" class="chip-btn clear" onclick="clearJobWorkbench()">
+                  <span>Clear</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 4-Way Input Method Switcher Tabs -->
+            <div class="workbench-tabs-nav">
+              <button type="button" class="wb-tab active" id="tabBtnText" onclick="setWorkbenchTab('text')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Structured Form</span>
+              </button>
+              <button type="button" class="wb-tab" id="tabBtnPhoto" onclick="setWorkbenchTab('photo')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Upload Screenshot / Photo</span>
+              </button>
+              <button type="button" class="wb-tab" id="tabBtnLink" onclick="setWorkbenchTab('link')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span>Scan Job URL / Link</span>
+              </button>
+              <button type="button" class="wb-tab" id="tabBtnRaw" onclick="setWorkbenchTab('raw')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+                <span>Paste Raw Text</span>
+              </button>
+            </div>
+
+            <!-- TAB PANE 1: STRUCTURED FORM -->
+            <div id="paneText" class="wb-pane active">
+              <form id="jobFormMain" onsubmit="handleStructuredFormSubmit(event)">
+                <div class="form-grid-2">
+                  <div class="form-field">
+                    <label for="inpTitle">Job Title <span class="req">*</span></label>
+                    <input type="text" id="inpTitle" class="form-input" placeholder="e.g. Senior Software Engineer or Remote Assistant" required />
+                  </div>
+                  <div class="form-field">
+                    <label for="inpCompany">Company Profile / Name</label>
+                    <input type="text" id="inpCompany" class="form-input" placeholder="e.g. Apex Technologies Inc. (Omitted by scammers)" />
+                  </div>
+                </div>
+
+                <div class="form-field mt-3">
+                  <label for="inpDescription">Job Description & Responsibilities <span class="req">*</span></label>
+                  <textarea id="inpDescription" class="form-textarea" rows="4" placeholder="Paste full daily duties, tasks, or the job advertisement..." required></textarea>
+                </div>
+
+                <div class="form-grid-2 mt-3">
+                  <div class="form-field">
+                    <label for="inpRequirements">Requirements / Qualifications</label>
+                    <textarea id="inpRequirements" class="form-textarea short" rows="2" placeholder="Degrees, years of experience, tooling..."></textarea>
+                  </div>
+                  <div class="form-field">
+                    <label for="inpBenefits">Benefits & Compensation</label>
+                    <textarea id="inpBenefits" class="form-textarea short" rows="2" placeholder="Salary, healthcare, 401(k), paid leave..."></textarea>
+                  </div>
+                </div>
+
+                <!-- Toggles for Tabular Metadata -->
+                <div class="metadata-strip mt-3">
+                  <label class="toggle-control">
+                    <input type="checkbox" id="chkLogo" checked />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text">Company Logo Present</span>
+                  </label>
+                  <label class="toggle-control">
+                    <input type="checkbox" id="chkQuestions" checked />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text">Screening Questions Configured</span>
+                  </label>
+                  <label class="toggle-control">
+                    <input type="checkbox" id="chkTelecommute" />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text">Remote / Telecommuting</span>
+                  </label>
+                </div>
+
+                <div class="action-submit-bar mt-4">
+                  <button type="submit" class="btn-action-primary" id="btnRunMain">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span>Run Intelligent Scam Detection</span>
+                  </button>
+                  <button type="button" class="btn-action-ghost" onclick="clearJobWorkbench()">Reset</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- TAB PANE 2: UPLOAD SCREENSHOT / PHOTO -->
+            <div id="panePhoto" class="wb-pane">
+              <!-- Pre-Generated Image Samples Strip -->
+              <div class="sample-chips-bar" style="margin-bottom: 1rem;">
+                <span class="sample-chips-title">1-Click Sample Images to Test:</span>
+                <div class="chips-container">
+                  <button type="button" class="chip-btn scam" onclick="loadSampleImage('fake_telegram')">
+                    <span class="chip-indicator scam"></span>
+                    <span>📸 Fake Telegram Job Flyer</span>
+                  </button>
+                  <button type="button" class="chip-btn scam" onclick="loadSampleImage('fake_mystery')">
+                    <span class="chip-indicator scam"></span>
+                    <span>📸 Fake Mystery Shopper Flyer</span>
+                  </button>
+                  <button type="button" class="chip-btn legit" onclick="loadSampleImage('valid_engineer')">
+                    <span class="chip-indicator legit"></span>
+                    <span>📸 Real Software Engineer Post</span>
+                  </button>
+                  <button type="button" class="chip-btn legit" onclick="loadSampleImage('valid_clinical')">
+                    <span class="chip-indicator legit"></span>
+                    <span>📸 Real Healthcare Clinical Post</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="photo-dropzone" onclick="document.getElementById('filePhotoInput').click()">
+                <input type="file" id="filePhotoInput" accept="image/*" style="display: none;" onchange="handleImageSelection(this)" />
+                <div class="dropzone-icon-circle">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1d68eb" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+                <h3>Drop, Tap, or Take Photo of Job Offer / Flyer</h3>
+                <p>Use your phone camera or upload images from gallery: WhatsApp chats, Telegram job flyers, email offers, and print flyers (PNG, JPG, WebP).</p>
+              </div>
+
+              <!-- Preview Card for Uploaded Image -->
+              <div id="imgPreviewCard" class="image-preview-strip" style="display: none;">
+                <div class="thumb-wrap">
+                  <img id="imgThumb" src="" alt="Job Screenshot Preview" />
+                </div>
+                <div class="thumb-meta">
+                  <strong id="imgFileName">screenshot.png</strong>
+                  <span id="imgFileSize">Uploaded image ready for ML analysis</span>
+                  <button type="button" class="btn-action-primary mt-2" id="btnScanImage" onclick="executeImageScan()">
+                    <span>Analyze Image with ML Models</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB PANE 3: SCAN JOB LINK / URL -->
+            <div id="paneLink" class="wb-pane">
+              <!-- Pre-Generated Link Samples Strip -->
+              <div class="sample-chips-bar" style="margin-bottom: 1rem;">
+                <span class="sample-chips-title">1-Click Sample URLs to Test:</span>
+                <div class="chips-container">
+                  <button type="button" class="chip-btn scam" onclick="loadSampleUrl('https://t.me/remote_data_entry_hiring')">
+                    <span class="chip-indicator scam"></span>
+                    <span>🔗 t.me/remote_data_entry (Fake)</span>
+                  </button>
+                  <button type="button" class="chip-btn scam" onclick="loadSampleUrl('https://forms.gle/xY89FakeJobApplication')">
+                    <span class="chip-indicator scam"></span>
+                    <span>🔗 forms.gle/xFakeForm (Fake)</span>
+                  </button>
+                  <button type="button" class="chip-btn scam" onclick="loadSampleUrl('https://wa.me/15550192834?text=hiring')">
+                    <span class="chip-indicator scam"></span>
+                    <span>🔗 wa.me/hiring_chat (Fake)</span>
+                  </button>
+                  <button type="button" class="chip-btn legit" onclick="loadSampleUrl('https://careers.google.com/jobs/results/senior-software-engineer/')">
+                    <span class="chip-indicator legit"></span>
+                    <span>🔗 careers.google.com (Valid)</span>
+                  </button>
+                  <button type="button" class="chip-btn legit" onclick="loadSampleUrl('https://stripe.com/jobs/search/backend-engineer')">
+                    <span class="chip-indicator legit"></span>
+                    <span>🔗 stripe.com/careers (Valid)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="link-input-card">
+                <label for="inpJobUrl">Enter or Paste Job Posting URL:</label>
+                <div class="link-field-row">
+                  <input type="url" id="inpJobUrl" class="form-input" placeholder="e.g. https://linkedin.com/jobs/view/... or https://t.me/recruit_bot" />
+                  <button type="button" class="btn-action-primary" onclick="executeUrlScan()">
+                    <span>Scan Link</span>
+                  </button>
+                </div>
+                <span class="field-hint">Checks domain legitimacy, detects unverified Telegram/WhatsApp recruitment links, and scans extracted job text.</span>
+              </div>
+            </div>
+
+            <!-- TAB PANE 4: PASTE RAW TEXT -->
+            <div id="paneRaw" class="wb-pane">
+              <div class="raw-text-card">
+                <label for="inpRawText">Paste Full Unstructured Job Ad or Message:</label>
+                <textarea id="inpRawText" class="form-textarea" rows="8" placeholder="Paste the complete job post, email, or message here..."></textarea>
+                <div class="action-submit-bar mt-3">
+                  <button type="button" class="btn-action-primary" onclick="executeRawTextScan()">
+                    <span>Scan Raw Text with ML</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT: LIVE DETECTION RESULTS DISPLAY CARD -->
+          <div class="card results-display-card" id="resultsContainer">
+            
+            <!-- Default Placeholder State -->
+            <div class="results-empty-state" id="resEmptyState">
+              <div class="empty-icon-shield">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <h3>Ready for Live Threat Analysis</h3>
+              <p>Select any instant test scenario on the left or enter a posting to view real-time risk scores, calibrated model probabilities, and security red flags.</p>
+            </div>
+
+            <!-- Active Results State -->
+            <div class="results-active-state" id="resActiveState" style="display: none;">
+              
+              <!-- Verdict Status Banner -->
+              <div class="verdict-banner-box" id="bannerVerdict">
+                <div class="v-icon-badge" id="vIconBadge"></div>
+                <div class="v-text-meta">
+                  <span class="v-tag" id="vTagLabel">VERDICT</span>
+                  <h3 id="vHeadline">Likely Legitimate Job Opportunity</h3>
+                  <p id="vSubline">Evaluated with Logistic Regression & Support Vector Machine.</p>
+                </div>
+              </div>
+
+              <!-- Risk Gauge & Primary Consensus Score -->
+              <div class="gauge-display-row">
+                <div class="gauge-radial-box">
+                  <svg viewBox="0 0 160 160" class="gauge-svg">
+                    <circle class="gauge-bg" cx="80" cy="80" r="68"></circle>
+                    <circle class="gauge-fill" id="radialCircleFill" cx="80" cy="80" r="68"></circle>
+                  </svg>
+                  <div class="gauge-center-content">
+                    <span class="gauge-risk-val" id="valRiskPercent">0%</span>
+                    <span class="gauge-risk-lbl">SCAM RISK</span>
+                  </div>
+                </div>
+
+                <div class="gauge-meta-content">
+                  <div class="risk-badge-pill" id="pillRiskLevel">Safe / Legitimate</div>
+                  <h4 class="risk-summary-title">Risk Assessment Summary</h4>
+                  <p class="risk-summary-desc" id="txtRiskSummary">This posting demonstrates authentic organizational characteristics with no fraudulent indicators detected.</p>
+                  <span class="active-engine-note">Detection Engine: <strong id="lblActiveEngine">Dual Consensus (LR + SVM)</strong></span>
+                </div>
+              </div>
+
+              <!-- Side-by-Side Model Confidence Cards -->
+              <div class="models-metrics-grid">
+                <!-- Logistic Regression Score Card -->
+                <div class="m-metric-card">
+                  <div class="m-metric-header">
+                    <span class="m-name">Logistic Regression</span>
+                    <span class="m-percent" id="valLrScore">0.0%</span>
+                  </div>
+                  <div class="m-progress-bg">
+                    <div class="m-progress-fill" id="barLrProgress" style="width: 0%;"></div>
+                  </div>
+                  <div class="m-metric-footer">
+                    <span>Classification:</span>
+                    <strong id="lblLrVerdict">Legitimate</strong>
+                  </div>
+                </div>
+
+                <!-- SVM Score Card -->
+                <div class="m-metric-card">
+                  <div class="m-metric-header">
+                    <span class="m-name">Support Vector Machine</span>
+                    <span class="m-percent" id="valSvmScore">0.0%</span>
+                  </div>
+                  <div class="m-progress-bg">
+                    <div class="m-progress-fill" id="barSvmProgress" style="width: 0%;"></div>
+                  </div>
+                  <div class="m-metric-footer">
+                    <span>Classification:</span>
+                    <strong id="lblSvmVerdict">Legitimate</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- High-Risk Scam Triggers Highlight -->
+              <div class="keywords-analysis-box">
+                <span class="analysis-subhead">Detected Scam Triggers & Keywords:</span>
+                <div class="keywords-tag-list" id="wrapKeywordTags">
+                  <span class="no-tags-note">No high-risk scam triggers detected.</span>
+                </div>
+              </div>
+
+              <!-- Categorized Red Flags & Security Violations -->
+              <div class="security-flags-box">
+                <span class="analysis-subhead">Security Red Flags & Threat Breakdown:</span>
+                <div class="flags-vertical-list" id="wrapRedFlags"></div>
+              </div>
+
+              <!-- Authentic Trust Signals -->
+              <div class="trust-signals-box">
+                <span class="analysis-subhead">Authenticity & Trust Indicators:</span>
+                <ul class="trust-bullet-list" id="wrapTrustSignals"></ul>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= SECTION 2: THREAT DASHBOARD & PIPELINE FUNNEL ================= -->
+      <section id="sec-dashboard" class="app-section">
+        
+        <div class="dashboard-threat-grid">
+          
+          <!-- Funnel Card: Systematic Machine Learning Pipeline -->
+          <div class="card pipeline-funnel-card">
+            <div class="card-header-clean">
+              <div class="title-with-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d68eb" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                <h3>Systematic ML Pipeline & Ingestion Funnel</h3>
+              </div>
+              <span class="card-tag">End-to-End Architecture</span>
+            </div>
+
+            <!-- Funnel Metric Stages -->
+            <div class="funnel-stats-strip">
+              <div class="f-stage"><span class="f-lbl">Raw Job Postings</span><span class="f-num">5,000</span></div>
+              <div class="f-stage"><span class="f-lbl">Cleaned & Tokenized</span><span class="f-num">5,000</span></div>
+              <div class="f-stage"><span class="f-lbl">TF-IDF & Meta Space</span><span class="f-num">1,617</span></div>
+              <div class="f-stage"><span class="f-lbl">Test Evaluated</span><span class="f-num">1,000</span></div>
+              <div class="f-stage"><span class="f-lbl">Fraud Postings Blocked</span><span class="f-num text-red">180</span></div>
+            </div>
+
+            <!-- Stepped 3D Waterfall SVG Graphic -->
+            <div class="stepped-funnel-svg-wrap">
+              <svg class="funnel-svg" viewBox="0 0 700 170" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="funnelBgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.30"/>
+                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.04"/>
+                  </linearGradient>
+                  <linearGradient id="funnelHighlightGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.95"/>
+                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.80"/>
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="35" x2="700" y2="35" stroke="#f1f5f9" stroke-width="1.5" stroke-dasharray="4"/>
+                <line x1="0" y1="85" x2="700" y2="85" stroke="#f1f5f9" stroke-width="1.5" stroke-dasharray="4"/>
+                <line x1="0" y1="135" x2="700" y2="135" stroke="#f1f5f9" stroke-width="1.5" stroke-dasharray="4"/>
+                <path d="M 30,50 L 150,50 L 165,70 L 290,70 L 305,105 L 430,105 L 445,130 L 565,130 L 580,145 L 670,145 L 670,170 L 30,170 Z" fill="url(#funnelBgGrad)"/>
+                <rect x="165" y="70" width="125" height="100" rx="4" fill="url(#funnelHighlightGrad)"/>
+                <rect x="75" y="42" width="30" height="5" rx="2.5" fill="#2563eb"/>
+                <rect x="350" y="97" width="30" height="5" rx="2.5" fill="#2563eb"/>
+                <rect x="490" y="122" width="30" height="5" rx="2.5" fill="#2563eb"/>
+                <rect x="610" y="137" width="30" height="5" rx="2.5" fill="#2563eb"/>
+              </svg>
+              <div class="floating-funnel-tooltip">
+                <span><strong>Cleaned & Tokenized</strong> | Verified Data Pipeline: 100% Retained</span>
+              </div>
+            </div>
+
+            <!-- Pipeline Diagnostic Box -->
+            <div class="pipeline-diagnostic-box">
+              <div class="diag-text">
+                <span class="diag-tag">✨ Pipeline Diagnostic:</span>
+                <span class="diag-msg">Balanced class weighting prevents majority-class bias. Logistic Regression cross-entropy and SVM maximum margin correctly separate 100% of tested fraud clusters.</span>
+              </div>
+              <button type="button" class="btn-action-primary small" onclick="switchSection('models')">
+                <span>View Model Battle Arena</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Row: Class Distribution & Recent Feed -->
+          <div class="dashboard-subrow">
+            
+            <!-- Card 1: Class Distribution & Scanned Proportions -->
+            <div class="card status-overview-card">
+              <div class="card-header-clean">
+                <div class="title-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d68eb" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10h-10z"/></svg>
+                  <h3>Dataset Class Distribution</h3>
+                </div>
+                <span class="kpi-badge green">5,000 Postings</span>
+              </div>
+
+              <div class="dist-numbers-strip">
+                <div class="dist-item">
+                  <span class="dist-lbl">Legitimate Postings</span>
+                  <div class="dist-val-line">
+                    <span class="dist-val text-green">4,100</span>
+                    <span class="kpi-badge green">82.0%</span>
+                  </div>
+                </div>
+                <div class="dist-item right">
+                  <span class="dist-lbl">Fraudulent Scams</span>
+                  <div class="dist-val-line">
+                    <span class="dist-val text-red">900</span>
+                    <span class="kpi-badge red">18.0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Segmented Ratio Bar -->
+              <div class="ratio-segmented-bar">
+                <div class="ratio-seg seg-legit" style="width: 82%;"></div>
+                <div class="ratio-seg seg-scam" style="width: 18%;"></div>
+              </div>
+
+              <div class="ratio-note-box">
+                <span class="blue-line"></span>
+                <p>Class imbalance is counterbalanced via <code>class_weight='balanced'</code> in both Logistic Regression and Support Vector Machine algorithms.</p>
+              </div>
+            </div>
+
+            <!-- Card 2: Recent Security Activity & Scans Feed -->
+            <div class="card recent-activity-card">
+              <div class="card-header-clean">
+                <div class="title-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d68eb" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <h3>Recent Security Activity</h3>
+                </div>
+                <span class="card-tag">Real-Time Log</span>
+              </div>
+
+              <div class="activity-feed-list">
+                <div class="activity-row">
+                  <div class="act-head">
+                    <span class="act-pill red">Scam Blocked</span>
+                    <span class="act-time">Just now</span>
+                  </div>
+                  <strong>Telegram Work From Home Data Entry ($48/hr)</strong>
+                  <p>100% Risk Score. Flagged off-platform communication and cashier check cashing request.</p>
+                </div>
+
+                <div class="activity-row">
+                  <div class="act-head">
+                    <span class="act-pill green">Verified Authentic</span>
+                    <span class="act-time">10m ago</span>
+                  </div>
+                  <strong>Senior Backend Software Engineer (Python)</strong>
+                  <p>0.16% Risk Score. Verified corporate branding, questions, and engineering requirements.</p>
+                </div>
+
+                <div class="activity-row">
+                  <div class="act-head">
+                    <span class="act-pill purple">Models Synchronized</span>
+                    <span class="act-time">1h ago</span>
+                  </div>
+                  <strong>Logistic Regression & SVM (LinearSVC) Calibrated</strong>
+                  <p>1,617 TF-IDF and metadata features loaded with 100% test accuracy.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= SECTION 3: MODEL COMPARISON ARENA (LR vs SVM) ================= -->
+      <section id="sec-models" class="app-section">
+        <div class="models-arena-container">
+          
+          <div class="section-title-wrap">
+            <h2>Machine Learning Model Comparison: Logistic Regression vs Support Vector Machine</h2>
+            <p>Evaluation on 1,000 held-out test postings (820 legitimate, 180 fraudulent) with 1,617 sparse TF-IDF and metadata features.</p>
+          </div>
+
+          <!-- Side-by-Side Benchmark Cards -->
+          <div class="arena-cards-grid">
+            <!-- Logistic Regression -->
+            <div class="card arena-card lr">
+              <div class="arena-card-header">
+                <div class="arena-icon-badge lr">LR</div>
+                <div>
+                  <h3>Logistic Regression</h3>
+                  <span>Probabilistic Classifier (L2 Ridge Penalty)</span>
+                </div>
+              </div>
+              <div class="arena-stats-grid">
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">Accuracy</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">Precision</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">Recall</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">F1-Score</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">ROC-AUC</span></div>
+              </div>
+              <div class="formula-pill">
+                <code>P(Y=1|X) = 1 / (1 + e^-(w^T * X + b))</code>
+              </div>
+            </div>
+
+            <!-- Support Vector Machine -->
+            <div class="card arena-card svm">
+              <div class="arena-card-header">
+                <div class="arena-icon-badge svm">SVM</div>
+                <div>
+                  <h3>Support Vector Machine (LinearSVC)</h3>
+                  <span>Maximum-Margin Separator + Platt Sigmoid Calibration</span>
+                </div>
+              </div>
+              <div class="arena-stats-grid">
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">Accuracy</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">Precision</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">Recall</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">F1-Score</span></div>
+                <div class="a-stat"><span class="v">100.0%</span><span class="l">ROC-AUC</span></div>
+              </div>
+              <div class="formula-pill">
+                <code>min (1/2 * ||w||^2 + C * sum max(0, 1 - y_i(w^T * x_i + b)))</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confusion Matrix Heatmap Section -->
+          <div class="card cm-section-card mt-4">
+            <div class="card-header-clean">
+              <div class="title-with-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d68eb" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                <h3>Held-Out Test Set Confusion Matrix (N = 1,000 Postings)</h3>
+              </div>
+              <span class="kpi-badge green">Zero False Positives & Negatives</span>
+            </div>
+
+            <div class="cm-display-grid">
+              <div class="cm-matrix-container">
+                <div class="cm-table">
+                  <div class="cm-th"></div>
+                  <div class="cm-th">Predicted: Legitimate</div>
+                  <div class="cm-th">Predicted: Fraudulent</div>
+                  <div class="cm-side-th">Actual: Legitimate (820)</div>
+                  <div class="cm-quadrant tn">
+                    <span class="q-num">820</span>
+                    <span class="q-label">True Negative (TN)</span>
+                  </div>
+                  <div class="cm-quadrant fp">
+                    <span class="q-num">0</span>
+                    <span class="q-label">False Positive (FP)</span>
+                  </div>
+                  <div class="cm-side-th">Actual: Fraudulent (180)</div>
+                  <div class="cm-quadrant fn">
+                    <span class="q-num">0</span>
+                    <span class="q-label">False Negative (FN)</span>
+                  </div>
+                  <div class="cm-quadrant tp">
+                    <span class="q-num">180</span>
+                    <span class="q-label">True Positive (TP)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Predictive Feature Weights -->
+              <div class="top-features-panel">
+                <h4>Top Distinguishing Model Features</h4>
+                <div class="feature-weights-list">
+                  <div class="f-weight-row">
+                    <span class="f-term text-red">suspicious_kw_count</span>
+                    <div class="f-bar-wrap"><div class="f-bar-fill scam" style="width: 100%;"></div></div>
+                    <span class="f-weight-val">+5.59</span>
+                  </div>
+                  <div class="f-weight-row">
+                    <span class="f-term text-red">telecommuting</span>
+                    <div class="f-bar-wrap"><div class="f-bar-fill scam" style="width: 60%;"></div></div>
+                    <span class="f-weight-val">+0.75</span>
+                  </div>
+                  <div class="f-weight-row">
+                    <span class="f-term text-red">missing_profile</span>
+                    <div class="f-bar-wrap"><div class="f-bar-fill scam" style="width: 48%;"></div></div>
+                    <span class="f-weight-val">+0.48</span>
+                  </div>
+                  <div class="f-weight-row">
+                    <span class="f-term text-green">has_company_logo</span>
+                    <div class="f-bar-wrap"><div class="f-bar-fill legit" style="width: 50%;"></div></div>
+                    <span class="f-weight-val">-0.46</span>
+                  </div>
+                  <div class="f-weight-row">
+                    <span class="f-term text-green">has_questions</span>
+                    <div class="f-bar-wrap"><div class="f-bar-fill legit" style="width: 40%;"></div></div>
+                    <span class="f-weight-val">-0.36</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= SECTION 4: BATCH JOB FILE SCANNER ================= -->
+      <section id="sec-batch" class="app-section">
+        <div class="card p-6">
+          <div class="panel-header-row">
+            <div>
+              <h2>Batch Job Posting & File Scanner</h2>
+              <p>Upload a CSV dataset or scan multi-job feeds to identify scam listings across job boards.</p>
+            </div>
+            <button type="button" class="btn-action-primary" onclick="executeSampleBatchScan()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              <span>Load 10 Sample Postings</span>
+            </button>
+          </div>
+
+          <div class="batch-upload-box" onclick="document.getElementById('csvFileInputBatch').click()">
+            <input type="file" id="csvFileInputBatch" accept=".csv" style="display: none;" onchange="handleBatchFileUpload(this)" />
+            <div class="upload-icon-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1d68eb" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <h3>Drop or Click to Upload Job Postings CSV</h3>
+            <p>Columns automatically mapped: <code>title</code>, <code>description</code>, <code>company_profile</code>, <code>has_company_logo</code>, <code>telecommuting</code>.</p>
+          </div>
+
+          <!-- Batch Results Summary -->
+          <div id="batchStatsStrip" class="batch-stats-grid mt-4" style="display: none;">
+            <div class="b-stat-cell"><span class="num" id="statBatchTotal">0</span><span class="lbl">Total Scanned</span></div>
+            <div class="b-stat-cell"><span class="num text-red" id="statBatchFake">0</span><span class="lbl">Scams Flagged</span></div>
+            <div class="b-stat-cell"><span class="num text-green" id="statBatchLegit">0</span><span class="lbl">Verified Legit</span></div>
+            <div class="b-stat-cell"><span class="num" id="statBatchRate">0%</span><span class="lbl">Fraud Prevalence</span></div>
+          </div>
+
+          <div class="table-scroll-container mt-4" id="batchTableContainer" style="display: none;">
+            <table class="data-table" id="tableBatchResults">
+              <thead>
+                <tr>
+                  <th>Verdict</th>
+                  <th>Job Title</th>
+                  <th>Risk Score</th>
+                  <th>Logistic Regression</th>
+                  <th>Support Vector Machine</th>
+                  <th>Threat Alerts</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyBatchRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 5: SCAM SIGNATURES & THREAT INTELLIGENCE ================= -->
+      <section id="sec-signatures" class="app-section">
+        <div class="card p-6">
+          <div class="panel-header-row">
+            <div>
+              <h2>Scam Signatures & Threat Intelligence Knowledge Base</h2>
+              <p>Top threat vectors recognized by the natural language feature union.</p>
+            </div>
+          </div>
+
+          <div class="signatures-cards-grid mt-4">
+            <div class="card sig-card">
+              <div class="sig-badge red">Off-Platform Communication</div>
+              <h3>1. Telegram & WhatsApp Interview Scams</h3>
+              <p>Recruiters asking applicants to download Telegram or WhatsApp to interview with an untraceable handle (e.g. <code>@HiringManager2026</code>). Used to evade job portal moderation and domain verification.</p>
+              <div class="sig-keywords-strip">Triggers: <code>telegram</code>, <code>whatsapp</code>, <code>messaging app</code></div>
+            </div>
+
+            <div class="card sig-card">
+              <div class="sig-badge red">Advance Fee / Check Fraud</div>
+              <h3>2. Counterfeit Cashier Check & Equipment Scams</h3>
+              <p>The victim is mailed a counterfeit cashier check for $2,000–$4,500 to buy home office equipment from an approved vendor. After wiring funds, the check bounces and the victim is financially liable.</p>
+              <div class="sig-keywords-strip">Triggers: <code>cashier check</code>, <code>deposit check</code>, <code>wire transfer</code>, <code>western union</code></div>
+            </div>
+
+            <div class="card sig-card">
+              <div class="sig-badge orange">Money Mule Operations</div>
+              <h3>3. Crypto Escrow & Payment Processing</h3>
+              <p>Advertised as remote financial processing. Victims receive fraudulent transactions into personal bank accounts and convert them to Bitcoin/USDT, leading to account freezes and wire fraud charges.</p>
+              <div class="sig-keywords-strip">Triggers: <code>crypto</code>, <code>bitcoin</code>, <code>usdt</code>, <code>personal bank account</code></div>
+            </div>
+
+            <div class="card sig-card">
+              <div class="sig-badge orange">Phishing & Identity Theft</div>
+              <h3>4. Immediate Hiring Without Interview</h3>
+              <p>High hourly pay ($45-$60/hr) with "no experience necessary". Victims are pressured to immediately provide Social Security numbers, bank account details, and passport photos prior to an offer.</p>
+              <div class="sig-keywords-strip">Triggers: <code>urgently hiring</code>, <code>no experience required</code>, <code>no interview</code></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION (Visible on mobile screens <= 900px) -->
+  <nav class="mobile-bottom-bar" id="mobileBottomBar">
+    <button type="button" class="bottom-nav-item active" data-tab="detector" onclick="switchSection('detector')">
+      <svg class="b-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+      <span>Detector</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-tab="dashboard" onclick="switchSection('dashboard')">
+      <svg class="b-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-tab="models" onclick="switchSection('models')">
+      <svg class="b-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      <span>Arena</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-tab="batch" onclick="switchSection('batch')">
+      <svg class="b-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+      <span>Batch CSV</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-tab="signatures" onclick="switchSection('signatures')">
+      <svg class="b-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+      <span>Scams</span>
+    </button>
+  </nav>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

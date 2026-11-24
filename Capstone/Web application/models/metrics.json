@@ -1,0 +1,296 @@
+{
+  "dataset_stats": {
+    "total_samples": 5000,
+    "legitimate_samples": 4100,
+    "fraudulent_samples": 900,
+    "fraud_ratio": 0.18,
+    "train_size": 4000,
+    "test_size": 1000
+  },
+  "logistic_regression": {
+    "name": "Logistic Regression",
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "confusion_matrix": [
+      [
+        820,
+        0
+      ],
+      [
+        0,
+        180
+      ]
+    ],
+    "training_time_sec": 0.03565359115600586,
+    "top_fraud_features": [
+      {
+        "feature": "suspicious_kw_count",
+        "weight": 5.59412417250372
+      },
+      {
+        "feature": "telecommuting",
+        "weight": 0.7527114526358217
+      },
+      {
+        "feature": "missing_profile",
+        "weight": 0.47870376975852585
+      },
+      {
+        "feature": "home",
+        "weight": 0.20986912172235322
+      },
+      {
+        "feature": "immediately",
+        "weight": 0.19986646718507167
+      },
+      {
+        "feature": "messaging",
+        "weight": 0.17546828000360362
+      },
+      {
+        "feature": "hours",
+        "weight": 0.17383946241917336
+      },
+      {
+        "feature": "hiring",
+        "weight": 0.17313240588540463
+      },
+      {
+        "feature": "typing",
+        "weight": 0.17110697956643683
+      },
+      {
+        "feature": "earn",
+        "weight": 0.1705277468613739
+      },
+      {
+        "feature": "immediate",
+        "weight": 0.1667475562793181
+      },
+      {
+        "feature": "quick",
+        "weight": 0.16638864189133698
+      },
+      {
+        "feature": "instructions",
+        "weight": 0.1623198640703866
+      },
+      {
+        "feature": "able",
+        "weight": 0.1623198640703866
+      },
+      {
+        "feature": "payments",
+        "weight": 0.15854145652591534
+      }
+    ],
+    "top_legit_features": [
+      {
+        "feature": "has_logo",
+        "weight": -0.766452625618314
+      },
+      {
+        "feature": "has_questions",
+        "weight": -0.5457354146175912
+      },
+      {
+        "feature": "char_len",
+        "weight": -0.18343111898248085
+      },
+      {
+        "feature": "strong",
+        "weight": -0.17197215627783735
+      },
+      {
+        "feature": "professional",
+        "weight": -0.1688887255767787
+      },
+      {
+        "feature": "medical",
+        "weight": -0.16028594283840672
+      },
+      {
+        "feature": "environment",
+        "weight": -0.13601079502577632
+      },
+      {
+        "feature": "options",
+        "weight": -0.13532500054163044
+      },
+      {
+        "feature": "standards",
+        "weight": -0.13274753825302507
+      },
+      {
+        "feature": "base",
+        "weight": -0.13091062729882477
+      },
+      {
+        "feature": "cloud",
+        "weight": -0.12888791125462462
+      },
+      {
+        "feature": "reimbursement",
+        "weight": -0.12763965566439064
+      },
+      {
+        "feature": "modern",
+        "weight": -0.12738085387478001
+      },
+      {
+        "feature": "scalable",
+        "weight": -0.12710989929024513
+      },
+      {
+        "feature": "growing",
+        "weight": -0.1269927587277796
+      }
+    ]
+  },
+  "svm": {
+    "name": "Support Vector Machine (LinearSVC)",
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "confusion_matrix": [
+      [
+        820,
+        0
+      ],
+      [
+        0,
+        180
+      ]
+    ],
+    "training_time_sec": 0.13892483711242676,
+    "top_fraud_features": [
+      {
+        "feature": "suspicious_kw_count",
+        "weight": 1.1067901335784005
+      },
+      {
+        "feature": "missing_profile",
+        "weight": 0.0532721929520715
+      },
+      {
+        "feature": "immediately",
+        "weight": 0.048508191133281156
+      },
+      {
+        "feature": "home",
+        "weight": 0.04759311390157029
+      },
+      {
+        "feature": "quick",
+        "weight": 0.04181776183608667
+      },
+      {
+        "feature": "messaging",
+        "weight": 0.03923535710180085
+      },
+      {
+        "feature": "hours",
+        "weight": 0.03813705096400904
+      },
+      {
+        "feature": "hiring",
+        "weight": 0.03656411314620584
+      },
+      {
+        "feature": "telegram",
+        "weight": 0.035714940666820176
+      },
+      {
+        "feature": "instructions",
+        "weight": 0.03514963472542702
+      },
+      {
+        "feature": "able",
+        "weight": 0.03514963472542702
+      },
+      {
+        "feature": "typing",
+        "weight": 0.03484055824347926
+      },
+      {
+        "feature": "payments",
+        "weight": 0.03474020675874412
+      },
+      {
+        "feature": "transaction",
+        "weight": 0.03464754186461178
+      },
+      {
+        "feature": "needed",
+        "weight": 0.03384156343096576
+      }
+    ],
+    "top_legit_features": [
+      {
+        "feature": "strong",
+        "weight": -0.03782615985446886
+      },
+      {
+        "feature": "professional",
+        "weight": -0.036831351701625575
+      },
+      {
+        "feature": "medical",
+        "weight": -0.03646123981350692
+      },
+      {
+        "feature": "base",
+        "weight": -0.03258523325637765
+      },
+      {
+        "feature": "standards",
+        "weight": -0.03128811082536171
+      },
+      {
+        "feature": "growing",
+        "weight": -0.030525347168321913
+      },
+      {
+        "feature": "reimbursement",
+        "weight": -0.03013928107734261
+      },
+      {
+        "feature": "options",
+        "weight": -0.029941709891266405
+      },
+      {
+        "feature": "environment",
+        "weight": -0.029905727267998814
+      },
+      {
+        "feature": "customer",
+        "weight": -0.029692955725567294
+      },
+      {
+        "feature": "operating",
+        "weight": -0.0291424018664055
+      },
+      {
+        "feature": "dedicated",
+        "weight": -0.0287492344509202
+      },
+      {
+        "feature": "skills",
+        "weight": -0.02796447803257589
+      },
+      {
+        "feature": "cloud",
+        "weight": -0.027693613129543552
+      },
+      {
+        "feature": "scalable",
+        "weight": -0.02766455087864907
+      }
+    ]
+  }
+}
